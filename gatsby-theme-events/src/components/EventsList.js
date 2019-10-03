@@ -14,7 +14,7 @@ const EventsList = ({ events }) => (
           {new Date(event.startDate).toLocaleDateString('en-US', {
             month: 'long',
             day: 'numeric',
-            year: 'numeric',
+            year: 'numeric'
           })}
         </li>
       ))}
