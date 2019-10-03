@@ -11,8 +11,8 @@ exports.onPreBootstrap = ({ reporter }) => {
 }
 
 // 2. define the event type
-// keys startDate and endDate need to be transformed from Pascal case used in yaml
-// slug is the url to our site which will be added in step 3
+// - keys startDate and endDate need to be transformed from Pascal case used in yaml
+// - slug is the url to our site which will be added in step 3
 exports.sourceNodes = ({ actions }) => {
   actions.createTypes(`
 	type Event implements Node @dontInfer {
@@ -41,10 +41,47 @@ exports.createResolvers = ({ createResolvers }) => {
   createResolvers({
     Event: {
       slug: {
-        resolve: source => slugify(source.name)
-      }
-    }
+        resolve: source => slugify(source.name),
+      },
+    },
   })
 }
 
-// 4. query for event and create pages
+// 4. query for events and create pages
+exports.createPages = async ({ actions, graphql, reporter }) => {
+  const basePath = '/'
+  actions.createPage({
+    path: basePath,
+    component: require.resolve('./src/templates/events.js'),
+  })
+
+  const result = await graphql(`
+    query {
+      allEvent(sort: { fields: startDate, order: ASC }) {
+        nodes {
+          id
+          slug
+        }
+      }
+    }
+  `)
+
+  if (result.errors) {
+    reporter.panic('error loading events', result.errors)
+    return
+  }
+
+  const events = result.data.allEvent.nodes
+
+  events.forEach(event => {
+    const slug = event.slug
+
+    actions.createPage({
+      path: slug,
+      component: require.resolve('./src/templates/event.js'),
+      context: {
+        eventID: event.id,
+      },
+    })
+  })
+}
