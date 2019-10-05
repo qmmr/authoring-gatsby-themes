@@ -98,8 +98,9 @@ bower_components/
 # Project specific excludes
 ###########################
 gatsby-theme-events/.cache
-gatsby-theme-events/public/
+gatsby-theme-events/public
 site/.cache
+site/public
 
 # production
 /build
